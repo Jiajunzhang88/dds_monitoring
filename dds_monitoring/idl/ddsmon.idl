@@ -1,0 +1,185 @@
+/**
+ * dds_monitoring - DDS 通信诊断系统消息定义
+ *
+ * 三个域：
+ *   perception  : 感知域 (默认 domain 10)
+ *   planning    : 规控域 (默认 domain 20)
+ *   diag        : 监控诊断域 (默认 domain 30)
+ *
+ * 所有数据消息都带 seq（用于丢包/连续性检测）与 stamp_ns（用于端到端时延检测）。
+ */
+
+module ddsmon {
+
+  module perception {
+
+    /** 相机原始帧（仅统计元信息，不带图像数据） */
+    struct CameraFrame {
+      unsigned long seq;
+      long long stamp_ns;
+      unsigned long camera_id;
+      unsigned long width;
+      unsigned long height;
+      unsigned long data_bytes;
+      string encoding;
+    };
+
+    struct Object {
+      unsigned long id;
+      long category;        // 0 unknown 1 car 2 truck 3 pedestrian 4 cyclist
+      double x;
+      double y;
+      double yaw;
+      double length;
+      double width;
+      double confidence;
+      double velocity;
+    };
+
+    /** 感知目标列表：感知域的核心输出，规控域消费 */
+    struct ObjectList {
+      unsigned long seq;
+      long long stamp_ns;
+      unsigned long camera_id;
+      unsigned long object_num;
+      sequence<Object> objects;
+    };
+
+    /** 激光雷达点云统计信息 */
+    struct LidarCloud {
+      unsigned long seq;
+      long long stamp_ns;
+      unsigned long ring;
+      unsigned long point_num;
+      double min_range;
+      double max_range;
+    };
+
+  };
+
+  module planning {
+
+    struct Obstacle {
+      unsigned long id;
+      double x;
+      double y;
+      double speed;
+      double confidence;
+    };
+
+    /**
+     * 规控域障碍物列表。source_stamp_ns 为感知输出的原始时间戳，
+     * 用于计算「感知 → 规控」跨域链路时延。
+     */
+    struct ObstacleList {
+      unsigned long seq;
+      long long stamp_ns;
+      long long source_stamp_ns;
+      unsigned long object_num;
+      sequence<Obstacle> obstacles;
+    };
+
+    struct TrajectoryPoint {
+      double x;
+      double y;
+      double theta;
+      double velocity;
+      double acceleration;
+      double t;
+    };
+
+    struct Trajectory {
+      unsigned long seq;
+      long long stamp_ns;
+      unsigned long plan_id;
+      unsigned long point_num;
+      sequence<TrajectoryPoint> points;
+    };
+
+    struct ControlCommand {
+      unsigned long seq;
+      long long stamp_ns;
+      double steering;
+      double throttle;
+      double brake;
+      long gear;
+      double target_speed;
+    };
+
+    struct VehicleState {
+      unsigned long seq;
+      long long stamp_ns;
+      double speed;
+      double yaw_rate;
+      double steering;
+      double accel;
+      long gear;
+    };
+
+  };
+
+  module diag {
+
+    /** 节点心跳：所有域内节点定期发往监控诊断域的存活信号 */
+    struct Heartbeat {
+      string node_id;
+      long domain_id;
+      unsigned long seq;
+      long long stamp_ns;
+      long state;            // 0 init 1 running 2 degraded 3 fault
+      double cpu_percent;
+      double mem_mb;
+      unsigned long loop_us;
+    };
+
+    /** 单话题诊断指标快照 */
+    struct TopicMetric {
+      string domain;
+      string topic;
+      unsigned long publishers;
+      unsigned long subscribers;
+      double rate_hz;
+      double expect_hz;
+      double jitter_ms;
+      double latency_ms;
+      double loss_ratio;
+      unsigned long long received;
+      unsigned long deadline_miss;
+    };
+
+    struct Issue {
+      string code;
+      long severity;         // 1 info 2 warn 3 error 4 critical
+      string domain;
+      string topic;
+      string detail;
+      double value;
+      double threshold;
+    };
+
+    /** 诊断域核心产物：一次完整诊断报告 */
+    struct DiagReport {
+      string report_id;
+      long long stamp_ns;
+      long health_score;
+      unsigned long issue_total;
+      unsigned long critical_num;
+      unsigned long error_num;
+      unsigned long warn_num;
+      sequence<Issue> issues;
+      sequence<TopicMetric> topics;
+    };
+
+    /** 状态变化事件：问题出现 / 恢复时发布 */
+    struct DiagEvent {
+      long long stamp_ns;
+      string code;
+      long severity;
+      string domain;
+      string topic;
+      string message;
+    };
+
+  };
+
+};

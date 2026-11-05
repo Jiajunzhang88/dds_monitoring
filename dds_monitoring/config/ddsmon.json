@@ -1,0 +1,108 @@
+{
+  "name": "adas_dds_diagnosis",
+  "description": "ADAS DDS 通信诊断：感知域(10) / 规控域(20) / 监控诊断域(30)",
+  "diag": {
+    "domain": "diag",
+    "report_topic": "rt/diag/report",
+    "event_topic": "rt/diag/event",
+    "heartbeat_topic": "rt/diag/heartbeat"
+  },
+  "domains": [
+    {
+      "name": "perception",
+      "domain_id": 10,
+      "topics": [
+        {
+          "name": "rt/perception/camera_front",
+          "type": "CameraFrame",
+          "expect_hz": 30,
+          "consumer_required": true,
+          "critical": true
+        },
+        {
+          "name": "rt/perception/object_list",
+          "type": "ObjectList",
+          "expect_hz": 30,
+          "consumer_required": true,
+          "critical": true
+        },
+        {
+          "name": "rt/perception/lidar_top",
+          "type": "LidarCloud",
+          "expect_hz": 10,
+          "consumer_required": true,
+          "critical": false
+        }
+      ]
+    },
+    {
+      "name": "planning",
+      "domain_id": 20,
+      "topics": [
+        {
+          "name": "rt/perception/obstacle_list",
+          "type": "ObstacleList",
+          "expect_hz": 30,
+          "consumer_required": true,
+          "critical": true
+        },
+        {
+          "name": "rt/planning/trajectory",
+          "type": "Trajectory",
+          "expect_hz": 10,
+          "consumer_required": true,
+          "critical": true
+        },
+        {
+          "name": "rt/planning/control_cmd",
+          "type": "ControlCommand",
+          "expect_hz": 50,
+          "consumer_required": true,
+          "critical": true
+        },
+        {
+          "name": "rt/planning/vehicle_state",
+          "type": "VehicleState",
+          "expect_hz": 100,
+          "consumer_required": true,
+          "critical": false
+        }
+      ]
+    },
+    {
+      "name": "diag",
+      "domain_id": 30,
+      "topics": [
+        {
+          "name": "rt/diag/heartbeat",
+          "type": "Heartbeat",
+          "expect_hz": 1,
+          "consumer_required": false,
+          "critical": true
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    { "node_id": "perception_node", "domain": "perception", "lease_sec": 3 },
+    { "node_id": "planning_node", "domain": "planning", "lease_sec": 3 },
+    { "node_id": "diag_node", "domain": "diag", "lease_sec": 3 }
+  ],
+  "rules": {
+    "rate_low_ratio": 0.7,
+    "rate_critical_ratio": 0.3,
+    "latency_warn_ms": 40,
+    "latency_error_ms": 100,
+    "jitter_warn_ratio": 0.5,
+    "loss_warn": 0.01,
+    "loss_error": 0.05,
+    "stale_warn_periods": 2,
+    "no_publisher_sec": 3,
+    "no_consumer_sec": 3,
+    "chain_warn_ms": 80,
+    "chain_error_ms": 150,
+    "heartbeat_lease_sec": 3,
+    "debounce_windows": 2,
+    "eval_interval_ms": 1000
+  }
+}
