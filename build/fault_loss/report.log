@@ -1,0 +1,36 @@
+采集中 (10s)...
+DDS 通信诊断快照  2026-11-05 21:46:42.913    健康分  80/100   问题 2 (CRITICAL 0 / ERROR 1 / WARN 1)
+
+【域概览】
+域              domain  参与者  发布者  订阅者    话题  健康分
+perception          10       2       3       3       3      80
+planning            20       1       4       4       4     100
+diag                30       1       3       2       1     100
+
+【话题指标】
+域          话题                            Pub  Sub      频率    期望   抖动p99   时延p99    丢失     状态
+perception  rt/perception/camera_front        1    1    24.0Hz      30    34.4ms     1.4ms  19.93%    ERROR
+perception  rt/perception/object_list         1    1    30.0Hz      30     1.3ms     1.4ms   0.00%       OK
+perception  rt/perception/lidar_top           1    1    10.0Hz      10     1.0ms     1.4ms   0.00%       OK
+planning    rt/perception/obstacle_list       1    1    30.0Hz      30     1.3ms     1.4ms   0.00%       OK
+planning    rt/planning/trajectory            1    1    10.0Hz      10     1.0ms     1.4ms   0.00%       OK
+planning    rt/planning/control_cmd           1    1    50.0Hz      50     1.2ms     1.4ms   0.00%       OK
+planning    rt/planning/vehicle_state         1    1   100.0Hz     100     1.2ms     1.4ms   0.00%       OK
+diag        rt/diag/heartbeat                 3    0     3.0Hz       1     1.3ms     1.4ms   0.00%       OK
+
+【跨域链路】
+  感知 → 规控  rt/perception/obstacle_list    p50   34.46 ms   p99   35.57 ms
+
+【节点心跳】
+  perception_node   perception  ALIVE    state=1  cpu=39.0%  mem=134.0MB  最近心跳=2026-11-05 21:46:42.912
+  planning_node     planning    ALIVE    state=1  cpu=39.0%  mem=134.0MB  最近心跳=2026-11-05 21:46:42.912
+  diag_node         diag        ALIVE    state=1  cpu=39.0%  mem=134.0MB  最近心跳=2026-11-05 21:46:42.912
+
+【活跃问题】
+      ERROR DDS.TOPIC.SAMPLE_LOSS             perception/rt/perception/camera_front    样本丢失 60/301（19.93%）
+       WARN DDS.TOPIC.JITTER_HIGH             perception/rt/perception/camera_front    到达间隔抖动 p99 34.38 ms，超过周期 33.33 ms 的 0.50 倍
+
+报告已生成:
+  reports/FAULT_loss.md
+  reports/FAULT_loss.json
+exit=1

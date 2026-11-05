@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/jiajun/git/dds_monitoring/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

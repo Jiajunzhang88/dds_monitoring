@@ -1,0 +1,3 @@
+故障[loss] 报告: /home/jiajun/git/dds_monitoring/build/fault_loss/report.log
+      ERROR DDS.TOPIC.SAMPLE_LOSS             perception/rt/perception/camera_front    样本丢失 60/301（19.93%）
+       WARN DDS.TOPIC.JITTER_HIGH             perception/rt/perception/camera_front    到达间隔抖动 p99 34.38 ms，超过周期 33.33 ms 的 0.50 倍

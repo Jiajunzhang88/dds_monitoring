@@ -1,0 +1,2 @@
+/usr/bin/ar qc libddsmon_types.a CMakeFiles/ddsmon_types.dir/generated/ddsmon.c.o
+/usr/bin/ranlib libddsmon_types.a

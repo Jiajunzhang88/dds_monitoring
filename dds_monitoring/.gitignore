@@ -1,6 +1,0 @@
-build/
-reports/
-third_party/
-*.o
-*.log
-compile_commands.json

@@ -1,0 +1,7 @@
+诊断守护进程已启动，报告写回域: diag / rt/diag/report
+[2026-11-05 21:23:03.217] 健康分 100/100   问题 0 (CRITICAL 0 / ERROR 0 / WARN 0)
+[2026-11-05 21:23:05.218] 健康分 100/100   问题 0 (CRITICAL 0 / ERROR 0 / WARN 0)
+  [事件] DDS.TOPIC.NO_PUBLISHER perception/rt/perception/lidar_top 出现
+[2026-11-05 21:23:07.219] 健康分  95/100   问题 1 (CRITICAL 0 / ERROR 0 / WARN 1)
+[2026-11-05 21:23:09.220] 健康分  95/100   问题 1 (CRITICAL 0 / ERROR 0 / WARN 1)
+守护进程退出，已发布最后一帧报告。

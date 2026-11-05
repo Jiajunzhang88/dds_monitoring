@@ -1,0 +1,6 @@
+reports/FAULT_loss.json 75
+reports/FAULT_kill.json 90
+reports/FAULT_qos.json 85
+reports/FAULT_stale.json 70
+reports/E2E_basic.json 100
+reports/FAULT_type.json 60

@@ -1,0 +1,2 @@
+故障[type] 报告: /home/jiajun/git/dds_monitoring/build/fault_type/report.log
+   CRITICAL DDS.TOPIC.TYPE_MISMATCH           planning/rt/planning/control_cmd         同一话题上出现多个类型：ddsmon::planning::ControlCommand / ddsmon::planning::Trajectory，端点无法互通

@@ -1,0 +1,2 @@
+故障[kill] 报告: /home/jiajun/git/dds_monitoring/build/fault_kill/report.log
+       WARN DDS.TOPIC.NO_PUBLISHER            perception/rt/perception/lidar_top       话题无发布者（期望 10.0Hz 数据流）

@@ -1,0 +1,6 @@
+ddsmon-sim 启动: nodes=all faults=kill duration=25s
+[monitor_node] 收到诊断报告 RPT_2_1793884985218873790  health=100  issues=0
+[monitor_node] 收到诊断报告 RPT_3_1793884987219463576  health=95  issues=1
+[monitor_node] 收到诊断事件 DDS.TOPIC.NO_PUBLISHER sev=2  问题出现: 话题无发布者（期望 10.0Hz 数据流） (perception/rt/perception/lidar_top)
+[monitor_node] 收到诊断报告 RPT_4_1793884989220461062  health=95  issues=1
+[monitor_node] 收到诊断报告 RPT_5_1793884991217814549  health=95  issues=1
