@@ -5,13 +5,13 @@
 定位"话题不流、流得慢、流得抖、丢样本、端点消失、QoS 配不上、类型撞车、节点掉线、跨域链路超时"
 这类问题，并输出可读报告；可选择把诊断结论写回监控诊断域，形成闭环。
 
-- 语言/环境：C++17 + C11，Linux（WSL2 Ubuntu 已验证），Cyclone DDS 0.10.5（`idlc` 代码生成）
+- 语言/环境：C++17 + C11，Linux ，Cyclone DDS 0.10.5（`idlc` 代码生成）
 - 产物：终端彩色快照、Markdown 报告、JSON 报告、写回 DDS 的 `DiagReport` / `DiagEvent`
 - 可视化：内置 Prometheus 指标端点（`/metrics`），配套 Grafana 看板（数据源/看板自动 provisioning）
 
 ---
 
-## 1. 它能诊断什么
+## 1. 
 
 | 诊断项 | 数据来源 | 判定方式 |
 |---|---|---|
@@ -66,7 +66,7 @@ bash scripts/build.sh          # 等价于 cmake -S . -B build && cmake --build 
 
 产物：`build/ddsmon`（诊断工具）、`build/ddsmon-sim`（三域模拟节点）。
 
-### 2.3 先跑一遍（两个终端）
+### 2.3 两个终端执行
 
 ```bash
 # 终端 A：起三域模拟节点（感知域 10 / 规控域 20 / 诊断域 30）
@@ -106,7 +106,7 @@ planning    rt/planning/control_cmd           1    1    50.0Hz      50     4.7ms
 ```
 
 ### 2.4 Grafana 可视化
-
+![Dashboards](./docs/ui.png)
 ```bash
 # 终端 A：被监控侧
 ./build/ddsmon-sim     -c config/ddsmon.json --node all -d 1800
@@ -269,32 +269,6 @@ dds_monitoring/
 ├── scripts/                    # build.sh / e2e.sh / demo_faults.sh
 └── docs/design.md              # 设计说明与扩展点
 ```
-
----
-
-## 6. 实现要点（踩过的坑）
-
-1. **内置主题就是拓扑来源**：`DDS_BUILTIN_TOPIC_DCPSPARTICIPANT / DCPSPUBLICATION /
-   DCPSSUBSCRIPTION` 直接当 topic 句柄建 reader，可拿到全网端点、话题名、类型名和完整 QoS；
-   端点存活用 `sample_info.instance_state` 判断（DISPOSED 时从 map 移除）。
-2. **GUID 必须用满 16 字节**做 map key。只取前 6 字节会让同进程内多个 participant/endpoint 的
-   GUID 前缀碰撞，拓扑被静默合并成一个端点（本项目实测踩到：3 个 writer 只显示 1 个）。
-3. **诊断 reader 用 BEST_EFFORT + VOLATILE + KEEP_LAST**：既能接 RELIABLE 也能接 BEST_EFFORT
-   发布者，不会因为诊断自己订阅不上而"看不见问题"；QoS 冲突只能靠内置主题里 writer/reader 的
-   QoS 对比判断，不能靠"是否收到数据"倒推。
-4. **`dds_take` 的样本必须用 `dds_return_loan` 归还**，用 `dds_sample_free` 会 double free。
-   自己 `dds_alloc` 的序列（发布报告时）才用 `dds_free`。
-5. **到达时间就是轮询时间**：本工具按样本轮询（1ms tick），时延/抖动里含最多约 1ms 采集开销；
-   对 100Hz 级话题足够，亚毫秒级同步精度需改为 waitset 驱动。
-6. **频率统计的观测窗口**取 `min(5s, now - 首帧)`，否则进程刚启动时以满 5s 做分母会把 30Hz
-   算成 12Hz，直接误报 `RATE_LOW`。
-7. **多发布者话题**（如 3 个节点的心跳）的到达间隔、seq 空洞都按发布者分别统计，不能混在一条
-   时间轴上算抖动。
-8. **规则防抖**：`issue_key = code|domain|topic`，连续 `debounce_windows` 个评估窗口成立才落问题，
-   条件不成立立即撤销；启动 `no_publisher_sec` 内不报"没有发布者"。
-9. **零样本话题必须显式判定**：只看 `rate_hz`、`stale_ms` 会把"发布者在线但从不出数"（订阅端死锁、
-   上游卡住）漏成健康；本项目对 `publishers > 0 && 从未收到样本` 同时落 `RATE_LOW`(ERROR) 与
-   `STALE`(ERROR)，并把该话题状态列标红（`stall` 故障用例即验证此项）。
 
 ---
 
