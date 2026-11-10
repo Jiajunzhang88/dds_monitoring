@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DDS 三域通信诊断 品牌图标（替换 Grafana 左上角 logo 用）
+     三节点 = 感知 / 规控 / 诊断 三域，连线 = DDS 通信，底部折线 = 诊断波形 -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="351" height="365" role="img" aria-label="DDS 三域通信诊断">
+  <defs>
+    <linearGradient id="ddsmonRing" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3DDC97"/>
+      <stop offset="0.55" stop-color="#3AA0FF"/>
+      <stop offset="1" stop-color="#A66CFF"/>
+    </linearGradient>
+    <linearGradient id="ddsmonEdge" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#3AA0FF"/>
+      <stop offset="1" stop-color="#3DDC97"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="4" y="4" width="92" height="92" rx="23" fill="#14181F"/>
+  <rect x="4" y="4" width="92" height="92" rx="23" fill="none" stroke="url(#ddsmonRing)" stroke-width="3.6"/>
+
+  <path d="M50 27 L71 60 L29 60 Z" fill="none" stroke="url(#ddsmonEdge)" stroke-width="3"
+        stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>
+
+  <circle cx="50" cy="27" r="7.2" fill="#3DDC97"/>
+  <circle cx="71" cy="60" r="7.2" fill="#3AA0FF"/>
+  <circle cx="29" cy="60" r="7.2" fill="#FFB74D"/>
+
+  <circle cx="50" cy="49" r="3.4" fill="#E9EEF5" opacity="0.9"/>
+
+  <path d="M22 78 H36 l4.5 -9 5.5 16 4.5 -7 h9" fill="none" stroke="#E9EEF5" stroke-width="2.8"
+        stroke-linecap="round" stroke-linejoin="round" opacity="0.95"/>
+</svg>

@@ -7,6 +7,7 @@
 
 - 语言/环境：C++17 + C11，Linux（WSL2 Ubuntu 已验证），Cyclone DDS 0.10.5（`idlc` 代码生成）
 - 产物：终端彩色快照、Markdown 报告、JSON 报告、写回 DDS 的 `DiagReport` / `DiagEvent`
+- 可视化：内置 Prometheus 指标端点（`/metrics`），配套 Grafana 看板（数据源/看板自动 provisioning）
 
 ---
 
@@ -104,6 +105,40 @@ planning    rt/planning/control_cmd           1    1    50.0Hz      50     4.7ms
   感知 -> 规控  rt/perception/obstacle_list    p50   36.09 ms   p99   38.60 ms
 ```
 
+### 2.4 Grafana 可视化
+
+```bash
+# 终端 A：被监控侧
+./build/ddsmon-sim     -c config/ddsmon.json --node all -d 1800
+
+# 终端 B：指标端点（Prometheus 文本格式，默认 9200；9100 常被 node_exporter 占用）
+./build/ddsmon metrics -c config/ddsmon.json --metrics-port 9200
+
+# 终端 C：装 Prometheus + Grafana 并自动配置数据源/看板（需要 sudo）
+bash scripts/grafana.sh
+```
+
+打开 <http://localhost:3000/d/ddsmon-main>（账号 `admin` / `admin`），看板包含健康分、问题分级、
+话题频率实测 vs 期望、时延 p50/p99、抖动、丢包率、跨域链路时延、QoS 不兼容、节点心跳年龄，
+以及"当前活跃问题"表格。`daemon` 也可以直接带 `--metrics-port 9200` 同时回写诊断域与出指标。
+
+指标清单与看板说明见 [`docs/grafana.md`](docs/grafana.md)。
+
+本机实测（健康基线，`Prometheus -> Grafana` 全链路已跑通）：
+
+```
+Prometheus target  ddsmon  UP (127.0.0.1:9200, scrape 1s)
+Grafana            13.3.0，`/api/health` OK
+数据源 ddsmon-prom  "Successfully queried the Prometheus API."
+看板 ddsmon-main    12 个 panel，`/api/ds/query` 返回 ddsmon_health_score = 100
+实测指标            topics=8, camera_front 30Hz, trajectory 时延 p99 1.13ms,
+                    感知->规控链路 p99 35.2ms
+```
+
+安装时的两个坑：Ubuntu 自带 `prometheus-node-exporter` 固定占 9100，所以指标端口用 9200；
+官方 `apt.grafana.com` 在国内可能只有几十 KB/s，`scripts/grafana.sh` 支持
+`GRAFANA_APT_MIRROR=https://mirrors.aliyun.com/grafana/apt` 走镜像源。
+
 ---
 
 ## 3. 命令行参考
@@ -118,15 +153,18 @@ ddsmon <子命令> [选项]
   watch               实时刷新（默认 1s），Ctrl-C 退出
   report              采集后写 reports/<prefix>.md 与 .json，并打印快照
   daemon              常驻：按 --report-interval 发布 DiagReport，并对问题出现/恢复发 DiagEvent
+  metrics             常驻：只暴露 Prometheus 指标（/metrics），供 Prometheus 抓取 / Grafana 展示
   qos                 只列话题拓扑与 QoS 不兼容明细
 
 选项
   -c, --config <path>        配置文件，默认 config/ddsmon.json
-  -d, --duration <sec>       采集时长（snapshot/report/qos 默认 5；daemon 不传则常驻）
+  -d, --duration <sec>       采集时长（snapshot/report/qos 默认 5；daemon/metrics 不传则常驻）
   -o, --out <dir>            report 输出目录，默认 reports
       --json <path>          snapshot 额外导出 JSON
       --interval <sec>       watch 刷新间隔，默认 1
       --report-interval <sec>  daemon 写回间隔，默认 5
+      --metrics-port <port>  metrics/daemon 暴露指标的端口（metrics 默认 9200，daemon 默认关闭）
+      --metrics-addr <addr>  指标监听地址，默认 127.0.0.1（跨机抓取用 0.0.0.0）
       --prefix <name>        报告文件名前缀
       --no-color             关闭 ANSI 颜色（输出非 TTY 时自动关闭）
 ```

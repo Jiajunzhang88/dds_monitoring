@@ -240,6 +240,20 @@ CMakeFiles/ddsmon_core.dir/src/publisher.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ddsmon_core.dir/src/publisher.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jiajun/git/dds_monitoring/src/publisher.cpp -o CMakeFiles/ddsmon_core.dir/src/publisher.cpp.s
 
+CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o: CMakeFiles/ddsmon_core.dir/flags.make
+CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o: /home/jiajun/git/dds_monitoring/src/metrics.cpp
+CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o: CMakeFiles/ddsmon_core.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/jiajun/git/dds_monitoring/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o -MF CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o.d -o CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o -c /home/jiajun/git/dds_monitoring/src/metrics.cpp
+
+CMakeFiles/ddsmon_core.dir/src/metrics.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/ddsmon_core.dir/src/metrics.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/jiajun/git/dds_monitoring/src/metrics.cpp > CMakeFiles/ddsmon_core.dir/src/metrics.cpp.i
+
+CMakeFiles/ddsmon_core.dir/src/metrics.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/ddsmon_core.dir/src/metrics.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/jiajun/git/dds_monitoring/src/metrics.cpp -o CMakeFiles/ddsmon_core.dir/src/metrics.cpp.s
+
 # Object files for target ddsmon_core
 ddsmon_core_OBJECTS = \
 "CMakeFiles/ddsmon_core.dir/src/util.cpp.o" \
@@ -253,7 +267,8 @@ ddsmon_core_OBJECTS = \
 "CMakeFiles/ddsmon_core.dir/src/engine.cpp.o" \
 "CMakeFiles/ddsmon_core.dir/src/rules.cpp.o" \
 "CMakeFiles/ddsmon_core.dir/src/report.cpp.o" \
-"CMakeFiles/ddsmon_core.dir/src/publisher.cpp.o"
+"CMakeFiles/ddsmon_core.dir/src/publisher.cpp.o" \
+"CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o"
 
 # External object files for target ddsmon_core
 ddsmon_core_EXTERNAL_OBJECTS =
@@ -270,9 +285,10 @@ libddsmon_core.a: CMakeFiles/ddsmon_core.dir/src/engine.cpp.o
 libddsmon_core.a: CMakeFiles/ddsmon_core.dir/src/rules.cpp.o
 libddsmon_core.a: CMakeFiles/ddsmon_core.dir/src/report.cpp.o
 libddsmon_core.a: CMakeFiles/ddsmon_core.dir/src/publisher.cpp.o
+libddsmon_core.a: CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o
 libddsmon_core.a: CMakeFiles/ddsmon_core.dir/build.make
 libddsmon_core.a: CMakeFiles/ddsmon_core.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jiajun/git/dds_monitoring/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Linking CXX static library libddsmon_core.a"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/jiajun/git/dds_monitoring/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Linking CXX static library libddsmon_core.a"
 	$(CMAKE_COMMAND) -P CMakeFiles/ddsmon_core.dir/cmake_clean_target.cmake
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/ddsmon_core.dir/link.txt --verbose=$(VERBOSE)
 

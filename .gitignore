@@ -1,0 +1,7 @@
+build/
+reports/
+third_party/
+*.o
+*.log
+*.deb
+compile_commands.json

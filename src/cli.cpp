@@ -10,6 +10,7 @@
 
 #include "ddsmon/config.hpp"
 #include "ddsmon/engine.hpp"
+#include "ddsmon/metrics.hpp"
 #include "ddsmon/publisher.hpp"
 #include "ddsmon/report.hpp"
 #include "ddsmon/util.hpp"
@@ -29,6 +30,8 @@ struct Args {
   bool duration_set = false;
   double interval_sec = 1.0;
   double report_interval_sec = 5.0;
+  int metrics_port = 0;
+  std::string metrics_addr = "127.0.0.1";
   bool color = true;
   bool verbose = false;
 };
@@ -43,6 +46,7 @@ void usage()
       "  ddsmon watch    [选项]          实时刷新看板（Ctrl-C 退出）\n"
       "  ddsmon report   [选项]         采集一段时间，生成 Markdown + JSON 报告\n"
       "  ddsmon daemon   [选项]          常驻诊断，持续把报告/事件写回监控诊断域\n"
+      "  ddsmon metrics  [选项]          常驻诊断，只暴露 Prometheus 指标（供 Grafana）\n"
       "  ddsmon qos      [选项]          只做拓扑与 QoS 兼容性检查\n"
       "\n"
       "选项:\n"
@@ -52,6 +56,8 @@ void usage()
       "      --json <path>     snapshot 额外输出 JSON 文件\n"
       "      --interval <sec>  watch 刷新间隔（默认 1s）\n"
       "      --report-interval <sec> daemon 写回报告的间隔（默认 5s）\n"
+      "      --metrics-port <port>   metrics/daemon 暴露 Prometheus 指标的端口（0=关闭）\n"
+      "      --metrics-addr <addr>   指标监听地址（默认 127.0.0.1，跨机抓取用 0.0.0.0）\n"
       "      --no-color        关闭 ANSI 颜色\n"
       "  -h, --help            显示帮助\n";
 }
@@ -85,6 +91,8 @@ bool parse_args(int argc, char** argv, Args* a)
     else if (arg == "--json") a->json_out = next("--json");
     else if (arg == "--interval") a->interval_sec = std::stod(next("--interval"));
     else if (arg == "--report-interval") a->report_interval_sec = std::stod(next("--report-interval"));
+    else if (arg == "--metrics-port") a->metrics_port = std::stoi(next("--metrics-port"));
+    else if (arg == "--metrics-addr") a->metrics_addr = next("--metrics-addr");
     else if (arg == "--prefix") a->prefix = next("--prefix");
     else if (arg == "--no-color") a->color = false;
     else if (arg == "-v" || arg == "--verbose") a->verbose = true;
@@ -261,6 +269,53 @@ int cmd_qos(const Args& a)
   return snap.qos_checks.empty() ? 0 : 1;
 }
 
+int cmd_metrics(const Args& a)
+{
+  ddsmon::Config cfg;
+  if (!load_config(a, &cfg)) return 2;
+
+  ddsmon::Engine engine;
+  std::string err;
+  if (!engine.init(cfg, &err)) {
+    std::cerr << "诊断引擎初始化失败: " << err << "\n";
+    return 2;
+  }
+
+  ddsmon::MetricsServer server;
+  int port = a.metrics_port > 0 ? a.metrics_port : 9200;
+  if (!server.start(a.metrics_addr, port, &err)) {
+    std::cerr << "指标服务启动失败: " << err << "\n";
+    return 2;
+  }
+  std::cerr << "Prometheus 指标已暴露: http://" << a.metrics_addr << ":" << port << "/metrics\n";
+
+  int64_t next_eval = 0;
+  int64_t hard_end = a.duration_set && a.duration_sec > 0
+                         ? ddsmon::now_ns() + static_cast<int64_t>(a.duration_sec * 1e9)
+                         : 0;
+  int64_t eval_ns = static_cast<int64_t>(cfg.rules.eval_interval_ms) * 1000000LL;
+  while (!g_stop) {
+    engine.tick();
+    int64_t now = ddsmon::now_ns();
+    if (now >= next_eval) {
+      engine.refresh();
+      const auto& snap = engine.snapshot();
+      server.update(ddsmon::render_prometheus(snap, cfg));
+      std::cout << "[" << ddsmon::wallclock_str(now) << "] " << ddsmon::render_health_line(snap)
+                << std::flush << "\n";
+      next_eval = now + eval_ns;
+    }
+    if (hard_end > 0 && now >= hard_end) break;
+    sleep_ms(1);
+  }
+
+  engine.refresh();
+  server.update(ddsmon::render_prometheus(engine.snapshot(), cfg));
+  server.stop();
+  std::cerr << "指标服务已停止。\n";
+  return 0;
+}
+
 int cmd_daemon(const Args& a)
 {
   ddsmon::Config cfg;
@@ -282,8 +337,21 @@ int cmd_daemon(const Args& a)
   std::cerr << "诊断守护进程已启动，报告写回域: " << cfg.diag_domain << " / " << cfg.report_topic
             << "\n";
 
+  ddsmon::MetricsServer server;
+  bool metrics_on = a.metrics_port > 0;
+  if (metrics_on) {
+    if (!server.start(a.metrics_addr, a.metrics_port, &err)) {
+      std::cerr << "指标服务启动失败: " << err << "\n";
+      return 2;
+    }
+    std::cerr << "Prometheus 指标已暴露: http://" << a.metrics_addr << ":" << a.metrics_port
+              << "/metrics\n";
+  }
+
   std::map<std::string, ddsmon::Issue> known_issues;
   int64_t next_report = 0;
+  int64_t next_eval = 0;
+  int64_t eval_ns = static_cast<int64_t>(cfg.rules.eval_interval_ms) * 1000000LL;
   int64_t hard_end = a.duration_set && a.duration_sec > 0
                          ? ddsmon::now_ns() + static_cast<int64_t>(a.duration_sec * 1e9)
                          : 0;
@@ -291,36 +359,41 @@ int cmd_daemon(const Args& a)
   while (!g_stop) {
     engine.tick();
     int64_t now = ddsmon::now_ns();
-    if (now >= next_report) {
+    if (now >= next_eval) {
       engine.refresh();
       const auto& snap = engine.snapshot();
-      publisher.publish_report(snap);
+      if (metrics_on) server.update(ddsmon::render_prometheus(snap, cfg));
 
-      // 问题出现 / 恢复 → 事件
-      std::map<std::string, ddsmon::Issue> current;
-      for (const auto& i : snap.issues) current[i.code + "|" + i.domain + "|" + i.topic] = i;
-      for (const auto& kv : current) {
-        if (known_issues.find(kv.first) == known_issues.end()) {
-          publisher.publish_event(static_cast<int>(kv.second.severity), kv.second.code,
-                                  kv.second.domain, kv.second.topic,
-                                  "问题出现: " + kv.second.detail);
-          std::cout << "  [事件] " << kv.second.code << " " << kv.second.domain << "/"
-                    << kv.second.topic << " 出现\n";
-        }
-      }
-      for (const auto& kv : known_issues) {
-        if (current.find(kv.first) == current.end()) {
-          publisher.publish_event(ddsmon::kSeverityInfo, kv.second.code, kv.second.domain,
-                                  kv.second.topic, "问题恢复");
-          std::cout << "  [事件] " << kv.second.code << " " << kv.second.domain << "/"
-                    << kv.second.topic << " 恢复\n";
-        }
-      }
-      known_issues = std::move(current);
+      if (now >= next_report) {
+        publisher.publish_report(snap);
 
-      std::cout << "[" << ddsmon::wallclock_str(now) << "] " << ddsmon::render_health_line(snap)
-                << std::flush << "\n";
-      next_report = now + static_cast<int64_t>(a.report_interval_sec * 1e9);
+        // 问题出现 / 恢复 → 事件
+        std::map<std::string, ddsmon::Issue> current;
+        for (const auto& i : snap.issues) current[i.code + "|" + i.domain + "|" + i.topic] = i;
+        for (const auto& kv : current) {
+          if (known_issues.find(kv.first) == known_issues.end()) {
+            publisher.publish_event(static_cast<int>(kv.second.severity), kv.second.code,
+                                    kv.second.domain, kv.second.topic,
+                                    "问题出现: " + kv.second.detail);
+            std::cout << "  [事件] " << kv.second.code << " " << kv.second.domain << "/"
+                      << kv.second.topic << " 出现\n";
+          }
+        }
+        for (const auto& kv : known_issues) {
+          if (current.find(kv.first) == current.end()) {
+            publisher.publish_event(ddsmon::kSeverityInfo, kv.second.code, kv.second.domain,
+                                    kv.second.topic, "问题恢复");
+            std::cout << "  [事件] " << kv.second.code << " " << kv.second.domain << "/"
+                      << kv.second.topic << " 恢复\n";
+          }
+        }
+        known_issues = std::move(current);
+
+        std::cout << "[" << ddsmon::wallclock_str(now) << "] " << ddsmon::render_health_line(snap)
+                  << std::flush << "\n";
+        next_report = now + static_cast<int64_t>(a.report_interval_sec * 1e9);
+      }
+      next_eval = now + eval_ns;
     }
     if (hard_end > 0 && now >= hard_end) break;
     sleep_ms(1);
@@ -328,6 +401,10 @@ int cmd_daemon(const Args& a)
 
   engine.refresh();
   publisher.publish_report(engine.snapshot());
+  if (metrics_on) {
+    server.update(ddsmon::render_prometheus(engine.snapshot(), cfg));
+    server.stop();
+  }
   std::cerr << "守护进程退出，已发布最后一帧报告。\n";
   publisher.shutdown();
   return 0;
@@ -349,6 +426,7 @@ int main(int argc, char** argv)
   if (args.cmd == "watch") return cmd_watch(args);
   if (args.cmd == "report") return cmd_report(args);
   if (args.cmd == "daemon") return cmd_daemon(args);
+  if (args.cmd == "metrics") return cmd_metrics(args);
   if (args.cmd == "qos") return cmd_qos(args);
 
   std::cerr << "未知子命令: " << args.cmd << "\n\n";

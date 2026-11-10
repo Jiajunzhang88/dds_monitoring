@@ -1,0 +1,464 @@
+{
+  "uid": "ddsmon-main",
+  "title": "DDS 三域通信诊断",
+  "tags": ["dds", "adas", "diagnosis"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "2s",
+  "time": { "from": "now-5m", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "domain",
+        "label": "域",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+        "query": { "query": "label_values(ddsmon_topic_rate_hz, domain)", "refId": "A" },
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "sort": 1
+      },
+      {
+        "name": "topic",
+        "label": "话题",
+        "type": "query",
+        "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+        "query": {
+          "query": "label_values(ddsmon_topic_rate_hz{domain=~\"$domain\"}, topic)",
+          "refId": "A"
+        },
+        "refresh": 2,
+        "multi": true,
+        "includeAll": true,
+        "allValue": ".*",
+        "current": { "selected": true, "text": "All", "value": "$__all" },
+        "sort": 1
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "健康分",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [{ "refId": "A", "expr": "ddsmon_health_score", "legendFormat": "健康分" }],
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background",
+        "graphMode": "area",
+        "textMode": "value_and_name",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "none",
+          "decimals": 0,
+          "min": 0,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 80 },
+              { "color": "green", "value": 95 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "活跃问题（按级别）",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_issues_by_severity{severity=\"CRITICAL\"}",
+          "legendFormat": "CRITICAL"
+        },
+        {
+          "refId": "B",
+          "expr": "ddsmon_issues_by_severity{severity=\"ERROR\"}",
+          "legendFormat": "ERROR"
+        },
+        {
+          "refId": "C",
+          "expr": "ddsmon_issues_by_severity{severity=\"WARN\"}",
+          "legendFormat": "WARN"
+        },
+        {
+          "refId": "D",
+          "expr": "ddsmon_issues_by_severity{severity=\"INFO\"}",
+          "legendFormat": "INFO"
+        }
+      ],
+      "gridPos": { "h": 4, "w": 6, "x": 4, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "CRITICAL" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "dark-red" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "ERROR" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "red" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "WARN" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "orange" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "INFO" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } }]
+          }
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "在线节点",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        { "refId": "A", "expr": "sum(ddsmon_node_alive)", "legendFormat": "在线节点" }
+      ],
+      "gridPos": { "h": 4, "w": 4, "x": 10, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": null },
+              { "color": "orange", "value": 1 },
+              { "color": "green", "value": 3 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "QoS 不兼容端点数",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_qos_incompatible_pairs",
+          "legendFormat": "不兼容端点数"
+        }
+      ],
+      "gridPos": { "h": 4, "w": 4, "x": 14, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "background",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "decimals": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "监控话题数",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [{ "refId": "A", "expr": "ddsmon_topics_monitored", "legendFormat": "话题数" }],
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "colorMode": "value",
+        "graphMode": "none",
+        "textMode": "value_and_name",
+        "justifyMode": "auto"
+      },
+      "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 }, "overrides": [] }
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "话题频率：实测 vs 期望",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_topic_rate_hz{domain=~\"$domain\",topic=~\"$topic\"}",
+          "legendFormat": "{{topic}} 实测"
+        },
+        {
+          "refId": "B",
+          "expr": "ddsmon_topic_rate_expected_hz{domain=~\"$domain\",topic=~\"$topic\"}",
+          "legendFormat": "{{topic}} 期望"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "hertz",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "spanNulls": true
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 11,
+      "type": "timeseries",
+      "title": "端到端时延 p99 / p50（ms）",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_topic_latency_p99_ms{domain=~\"$domain\",topic=~\"$topic\"}",
+          "legendFormat": "{{topic}} p99"
+        },
+        {
+          "refId": "B",
+          "expr": "ddsmon_topic_latency_p50_ms{domain=~\"$domain\",topic=~\"$topic\"}",
+          "legendFormat": "{{topic}} p50"
+        }
+      ],
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["lastNotNull"] },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 8,
+            "showPoints": "never",
+            "spanNulls": true,
+            "thresholdsStyle": { "mode": "dashed" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 40 },
+              { "color": "red", "value": 100 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 12,
+      "type": "timeseries",
+      "title": "到达抖动 p99（ms）",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_topic_jitter_p99_ms{domain=~\"$domain\",topic=~\"$topic\"}",
+          "legendFormat": "{{topic}}"
+        }
+      ],
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 12 },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["max"] } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 8, "showPoints": "never" }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "样本丢失率",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_topic_loss_ratio{domain=~\"$domain\",topic=~\"$topic\"}",
+          "legendFormat": "{{topic}}"
+        }
+      ],
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 12 },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["max"] } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "min": 0,
+          "max": 1,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 1,
+            "fillOpacity": 15,
+            "showPoints": "never"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 0.01 },
+              { "color": "red", "value": 0.05 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 14,
+      "type": "timeseries",
+      "title": "跨域链路时延（感知 → 规控，ms）",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_chain_latency_p99_ms",
+          "legendFormat": "{{chain}} p99"
+        },
+        {
+          "refId": "B",
+          "expr": "ddsmon_chain_latency_p50_ms",
+          "legendFormat": "{{chain}} p50"
+        }
+      ],
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 12 },
+      "options": { "legend": { "displayMode": "list", "placement": "bottom", "calcs": [] } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 10, "showPoints": "never" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 80 },
+              { "color": "red", "value": 150 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 15,
+      "type": "timeseries",
+      "title": "节点心跳年龄（秒）",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_node_heartbeat_age_seconds",
+          "legendFormat": "{{node}}"
+        }
+      ],
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 19 },
+      "options": { "legend": { "displayMode": "table", "placement": "bottom", "calcs": ["max"] } },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 8, "showPoints": "never" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 3 },
+              { "color": "red", "value": 6 }
+            ]
+          }
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 16,
+      "type": "table",
+      "title": "当前活跃问题",
+      "datasource": { "type": "prometheus", "uid": "ddsmon-prom" },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "ddsmon_issue_active",
+          "instant": true,
+          "format": "table",
+          "legendFormat": ""
+        }
+      ],
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": { "Time": true, "Value": true, "__name__": true },
+            "renameByName": {
+              "code": "代码",
+              "severity": "级别",
+              "domain": "域",
+              "topic": "话题",
+              "detail": "说明"
+            }
+          }
+        }
+      ],
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 19 },
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "align": "left", "cellOptions": { "type": "auto" }, "inspect": false }
+        },
+        "overrides": []
+      },
+      "options": { "showHeader": true, "cellHeight": "sm", "footer": { "show": false } }
+    }
+  ]
+}

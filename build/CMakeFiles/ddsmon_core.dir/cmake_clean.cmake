@@ -5,6 +5,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/ddsmon_core.dir/src/engine.cpp.o.d"
   "CMakeFiles/ddsmon_core.dir/src/json.cpp.o"
   "CMakeFiles/ddsmon_core.dir/src/json.cpp.o.d"
+  "CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o"
+  "CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o.d"
   "CMakeFiles/ddsmon_core.dir/src/monitor.cpp.o"
   "CMakeFiles/ddsmon_core.dir/src/monitor.cpp.o.d"
   "CMakeFiles/ddsmon_core.dir/src/publisher.cpp.o"

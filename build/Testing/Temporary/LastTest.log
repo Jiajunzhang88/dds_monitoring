@@ -1,18 +1,18 @@
-Start testing: Nov 05 21:45 CST
+Start testing: Nov 10 13:00 CST
 ----------------------------------------------------------
 1/4 Testing: test_json
 1/4 Test: test_json
 Command: "/home/jiajun/git/dds_monitoring/build/test_json"
 Directory: /home/jiajun/git/dds_monitoring/build
-"test_json" start time: Nov 05 21:45 CST
+"test_json" start time: Nov 10 13:00 CST
 Output:
 ----------------------------------------------------------
 test_json ok
 <end of output>
-Test time =   0.00 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"test_json" end time: Nov 05 21:45 CST
+"test_json" end time: Nov 10 13:00 CST
 "test_json" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -20,15 +20,15 @@ Test Passed.
 2/4 Test: test_stats
 Command: "/home/jiajun/git/dds_monitoring/build/test_stats"
 Directory: /home/jiajun/git/dds_monitoring/build
-"test_stats" start time: Nov 05 21:45 CST
+"test_stats" start time: Nov 10 13:00 CST
 Output:
 ----------------------------------------------------------
 test_stats ok
 <end of output>
-Test time =   0.00 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"test_stats" end time: Nov 05 21:45 CST
+"test_stats" end time: Nov 10 13:00 CST
 "test_stats" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -36,15 +36,15 @@ Test Passed.
 3/4 Test: test_qos
 Command: "/home/jiajun/git/dds_monitoring/build/test_qos"
 Directory: /home/jiajun/git/dds_monitoring/build
-"test_qos" start time: Nov 05 21:45 CST
+"test_qos" start time: Nov 10 13:00 CST
 Output:
 ----------------------------------------------------------
 test_qos ok
 <end of output>
-Test time =   0.00 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"test_qos" end time: Nov 05 21:45 CST
+"test_qos" end time: Nov 10 13:00 CST
 "test_qos" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -52,16 +52,16 @@ Test Passed.
 4/4 Test: test_rules
 Command: "/home/jiajun/git/dds_monitoring/build/test_rules"
 Directory: /home/jiajun/git/dds_monitoring/build
-"test_rules" start time: Nov 05 21:45 CST
+"test_rules" start time: Nov 10 13:00 CST
 Output:
 ----------------------------------------------------------
 test_rules ok
 <end of output>
-Test time =   0.00 sec
+Test time =   0.02 sec
 ----------------------------------------------------------
 Test Passed.
-"test_rules" end time: Nov 05 21:45 CST
+"test_rules" end time: Nov 10 13:00 CST
 "test_rules" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Nov 05 21:45 CST
+End testing: Nov 10 13:00 CST

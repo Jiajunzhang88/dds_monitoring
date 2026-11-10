@@ -5,6 +5,7 @@ CMakeFiles/ddsmon.dir/src/cli.cpp.o
  /home/jiajun/git/dds_monitoring/src/cli.cpp
  /home/jiajun/git/dds_monitoring/include/ddsmon/config.hpp
  /home/jiajun/git/dds_monitoring/include/ddsmon/engine.hpp
+ /home/jiajun/git/dds_monitoring/include/ddsmon/metrics.hpp
  /home/jiajun/git/dds_monitoring/include/ddsmon/monitor.hpp
  /home/jiajun/git/dds_monitoring/include/ddsmon/publisher.hpp
  /home/jiajun/git/dds_monitoring/include/ddsmon/qos_model.hpp

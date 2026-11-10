@@ -53,6 +53,7 @@ add_library(ddsmon_core STATIC
   src/rules.cpp
   src/report.cpp
   src/publisher.cpp
+  src/metrics.cpp
 )
 target_include_directories(ddsmon_core PUBLIC
   ${CMAKE_SOURCE_DIR}/include

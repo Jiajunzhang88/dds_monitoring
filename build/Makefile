@@ -395,6 +395,30 @@ src/json.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/ddsmon_core.dir/build.make CMakeFiles/ddsmon_core.dir/src/json.cpp.s
 .PHONY : src/json.cpp.s
 
+src/metrics.o: src/metrics.cpp.o
+.PHONY : src/metrics.o
+
+# target to build an object file
+src/metrics.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ddsmon_core.dir/build.make CMakeFiles/ddsmon_core.dir/src/metrics.cpp.o
+.PHONY : src/metrics.cpp.o
+
+src/metrics.i: src/metrics.cpp.i
+.PHONY : src/metrics.i
+
+# target to preprocess a source file
+src/metrics.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ddsmon_core.dir/build.make CMakeFiles/ddsmon_core.dir/src/metrics.cpp.i
+.PHONY : src/metrics.cpp.i
+
+src/metrics.s: src/metrics.cpp.s
+.PHONY : src/metrics.s
+
+# target to generate assembly for a file
+src/metrics.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/ddsmon_core.dir/build.make CMakeFiles/ddsmon_core.dir/src/metrics.cpp.s
+.PHONY : src/metrics.cpp.s
+
 src/monitor.o: src/monitor.cpp.o
 .PHONY : src/monitor.o
 
@@ -767,6 +791,9 @@ help:
 	@echo "... src/json.o"
 	@echo "... src/json.i"
 	@echo "... src/json.s"
+	@echo "... src/metrics.o"
+	@echo "... src/metrics.i"
+	@echo "... src/metrics.s"
 	@echo "... src/monitor.o"
 	@echo "... src/monitor.i"
 	@echo "... src/monitor.s"
