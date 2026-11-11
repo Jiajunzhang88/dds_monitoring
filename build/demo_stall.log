@@ -1,3 +1,0 @@
-故障[stall] 报告: /home/jiajun/git/dds_monitoring/build/fault_stall/report.log
-      ERROR DDS.TOPIC.RATE_LOW                planning/rt/planning/trajectory          实测频率 0.0Hz 低于期望 10.0Hz
-      ERROR DDS.TOPIC.STALE                   planning/rt/planning/trajectory          发布者已上线但从未收到该话题样本

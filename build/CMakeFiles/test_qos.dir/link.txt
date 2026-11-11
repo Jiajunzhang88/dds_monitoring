@@ -1,1 +1,0 @@
-/usr/bin/c++ -O2 -g -Wl,--dependency-file=CMakeFiles/test_qos.dir/link.d CMakeFiles/test_qos.dir/tests/test_qos.cpp.o -o test_qos  libddsmon_core.a libddsmon_types.a /usr/lib/x86_64-linux-gnu/libddsc.so -lpthread

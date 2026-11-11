@@ -1,8 +1,0 @@
-== snapshot ==
-== report ==
-== qos ==
-== daemon (写回监控诊断域) ==
-输出目录: /home/jiajun/git/dds_monitoring/build/e2e
-[monitor_node] 收到诊断报告 RPT_2_1793886385873852969  health=100  issues=0
-[monitor_node] 收到诊断报告 RPT_3_1793886387874272613  health=100  issues=0
-[monitor_node] 收到诊断报告 RPT_4_1793886389874033056  health=100  issues=0

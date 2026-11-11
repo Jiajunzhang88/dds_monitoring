@@ -1,2 +1,0 @@
-故障[qos] 报告: /home/jiajun/git/dds_monitoring/build/fault_qos/report.log
-      ERROR DDS.QOS.RELIABILITY_INCOMPATIBLE  planning/rt/planning/control_cmd         订阅者请求 RELIABLE，发布者仅提供 BEST_EFFORT，两者无法匹配（1 对端点不兼容；建议：发布者改为 RELIABLE，或订阅者改为 BEST_EFFORT）

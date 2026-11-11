@@ -1,3 +1,0 @@
-故障[stale] 报告: /home/jiajun/git/dds_monitoring/build/fault_stale/report.log
-      ERROR DDS.TOPIC.LATENCY_HIGH            perception/rt/perception/object_list     端到端时延 p99 301.28 ms（阈值 40.00 ms）
-      ERROR DDS.CHAIN.LATENCY_HIGH            planning/rt/perception/obstacle_list     感知 → 规控 链路时延 p99 335.42 ms（阈值 80.00 ms）

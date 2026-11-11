@@ -1,1 +1,0 @@
-ddsmon-sim 启动: nodes=all faults=none duration=25s
