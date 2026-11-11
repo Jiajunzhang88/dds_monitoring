@@ -1,7 +1,22 @@
-Makefile linguist-detectable=false
-*.mk linguist-detectable=false
-*.cpp linguist-detectable=true
-*.hpp linguist-detectable=true
-*.h linguist-detectable=true
-*.cc linguist-detectable=true
-*.cxx linguist-detectable=true
+# 构建脚本全部排除统计
+Makefile linguist-vendored=true
+*.mk linguist-vendored=true
+CMakeLists.txt linguist-vendored=true
+
+# shell脚本排除
+scripts/*.sh linguist-vendored=true
+
+# idl/配置文件（DDS的idl、yaml）排除
+idl/*.idl linguist-vendored=true
+config/*.yaml linguist-vendored=true
+grafana/*.json linguist-vendored=true
+
+# 文档、报告排除
+docs/** linguist-documentation=true
+reports/** linguist-documentation=true
+
+# C++源码强制计入统计
+src/**/*.cpp linguist-detectable=true
+src/**/*.cc linguist-detectable=true
+include/**/*.hpp linguist-detectable=true
+include/**/*.h linguist-detectable=true
